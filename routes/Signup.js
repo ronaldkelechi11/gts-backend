@@ -1,8 +1,9 @@
 const express = require('express')
+const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const router = express.Router()
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
 
     var user = req.body.user
 
@@ -20,8 +21,7 @@ router.post('/', (req, res) => {
         return randomString;
     }
 
-
-    User.findOne({ email })
+    User.findOne({ email, username })
         .then((response) => {
             if (response == null) {
                 const randomGenerator = generateRefferalCode();
@@ -35,7 +35,6 @@ router.post('/', (req, res) => {
                     refferalCode: randomGenerator,
                     refferals: []
                 })
-                console.log(user);
 
                 user.save()
                     .then((result) => {

@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
         cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname));
     },
     destination: (req, file, cb) => {
-        cb(null, "images");
+        cb(null, "public/images");
     }
 })
 const upload = multer({ storage: storage })
@@ -39,25 +39,50 @@ router.post("/:username/deposit", upload.single('file'), async (req, res) => {
     const transaction = new Transaction({
         amount: req.body.amount,
         category: req.body.category,
+        coin: req.body.coin,
         file: req.file.filename,
         verified: false
     })
 
     await transaction.save()
         .then(async (result) => {
-            var newTransaction = result
+            var newTransaction = result._id
             const user = await User.findOne({ username: username })
             if (user) {
-                user.transactions.add(newTransaction)
-                res.status(200).send()
-            }
-            else {
-                res.status(409).send()
-                // This user doesn't exist
+                var newBalance = parseFloat(user.balance) + parseFloat(req.body.amount)
+                user.balance = newBalance
+                user.transactions.push(newTransaction)
+
+                user.updateOne({ balance: newBalance, transactions: user.transactions })
+                    .then((result) => {
+                        res.status(200).send()
+                    }).catch((err) => {
+                        console.log(err);
+                    });
             }
         }).catch((err) => {
             console.log(err);
         });
+})
+
+router.get("/:username/transactions", async (req, res) => {
+    const username = req.params.username
+
+    const user = await User.findOne({ username: username })
+
+    if (user) {
+        user.password = ""
+        user.populate("transactions")
+            .then((result) => {
+                res.status(200).send(user)
+            }).catch((err) => {
+                res.status(501).send()
+            });
+    }
+    else {
+        res.status(409).send()
+    }
+
 })
 
 module.exports = router
