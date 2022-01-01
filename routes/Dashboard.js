@@ -20,14 +20,18 @@ const upload = multer({ storage: storage })
 router.get('/:username', async (req, res) => {
     var username = req.params.username
 
-    const user = await User.findOne({ username: username })
-    if (user) {
-        user.password = ""
-        res.status(200).send(user)
-    }
-    else {
-        res.status(501).send()
-        console.log("User doesn't exist");
+    try {
+        const user = await User.findOne({ username: username })
+        if (user) {
+            user.password = ""
+            res.status(200).send(user)
+        }
+        else {
+            res.status(501).send()
+            console.log("User doesn't exist");
+        }
+    } catch (error) {
+        console.log(error);
     }
 })
 
@@ -49,11 +53,8 @@ router.post("/:username/deposit", upload.single('file'), async (req, res) => {
             var newTransaction = result._id
             const user = await User.findOne({ username: username })
             if (user) {
-                var newBalance = parseFloat(user.balance) + parseFloat(req.body.amount)
-                user.balance = newBalance
                 user.transactions.push(newTransaction)
-
-                user.updateOne({ balance: newBalance, transactions: user.transactions })
+                user.updateOne({ transactions: user.transactions })
                     .then((result) => {
                         res.status(200).send()
                     }).catch((err) => {
