@@ -39,18 +39,35 @@ router.get('/', async (req, res) => {
 })
 
 
-
+// Transaction verified
 router.put("/:id", (req, res) => {
     var transactionId = req.params.id
 
-    Transaction.findOneAndUpdate({ _id: transactionId }, { verified: true }
-    ).then((result) => {
-        // Find which user has the transaction return the transactions get the amout and then add it to his balance
+    /*
 
-        res.status(200).send()
-    }).catch((err) => {
-        console.log(err);
-    });
+    Finds the transaction with the param ID returns the user attached to it. Then gets the amount and gets the user's account balance and sums it up very rowdy code. :) 
+    
+    */
+    // Reason why it is bad code is because it runs to many queries to the database will improve on it
+
+    var transaction = Transaction.findOneAndUpdate
+        ({ _id: transactionId }, { verified: true }
+        ).then(async (result) => {
+            const user = await User.findOne({ _id: result.user })
+            if (user) {
+                var newBalance = parseFloat(result.amount + user.balance)
+                User.findOneAndUpdate({ _id: result.user }, { balance: newBalance }).then((result) => {
+                    res.status(200).send()
+                }).catch((err) => {
+                    res.send(501).send(err)
+                });
+            }
+            else {
+                res.status(409).send()
+            }
+        }).catch((err) => {
+            console.log(err);
+        });
 
 })
 

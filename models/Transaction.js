@@ -5,6 +5,7 @@ var transactionSchema = new mongoose.Schema({
     amount: {
         type: Number,
         required: true,
+        immutable: true
     },
     category: {
         type: String,

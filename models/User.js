@@ -20,7 +20,8 @@ var userSchema = new mongoose.Schema({
         type: String,
         required: true,
         min: 8,
-        max: 64
+        max: 64,
+        immutable: true
     },
     balance: {
         type: Number,

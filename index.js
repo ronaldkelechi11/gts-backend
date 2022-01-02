@@ -4,7 +4,7 @@ const { mongoose } = require('mongoose')
 const app = express()
 
 const PORT = 4000 || process.env.PORT
-const dbUrl = "mongodb://127.0.0.1:27017/globalTechnologyServices"
+const dbUrl = "mongodb://127.0.0.1:27017/globalTechnologyServices" || process.env.MONGO_URL
 
 
 // Middleware
