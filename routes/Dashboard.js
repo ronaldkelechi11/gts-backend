@@ -36,36 +36,47 @@ router.get('/:username', async (req, res) => {
 })
 
 
-//  Deposit Route
-router.post("/:username/deposit", upload.single('file'), async (req, res) => {
-    var username = req.params.username
+//  Make a Deposit(Transaction)
+router.post("/:username/deposit",
+    upload.single('file'),
+    async (req, res) => {
+        var username = req.params.username
 
-    const transaction = new Transaction({
-        amount: req.body.amount,
-        category: req.body.category,
-        coin: req.body.coin,
-        file: req.file.filename,
-        verified: false
+        const transaction = new Transaction({
+            amount: req.body.amount,
+            category: req.body.category,
+            coin: req.body.coin,
+            file: req.file.filename,
+            user: 0,
+            verified: false
+        })
+
+        const user = await User.findOne({ username: username })
+        if (user) {
+            transaction.user = user._id
+        }
+
+        await transaction.save()
+            .then(async (result) => {
+                var newTransaction = result._id
+                const user = await User.findOne({ username: username })
+                if (user) {
+                    user.transactions.push(newTransaction)
+                    user.updateOne({ transactions: user.transactions })
+                        .then((result) => {
+                            res.status(200).send()
+                        }).catch((err) => {
+                            console.log(err);
+                        });
+                }
+            }).catch((err) => {
+                console.log(err);
+            });
     })
 
-    await transaction.save()
-        .then(async (result) => {
-            var newTransaction = result._id
-            const user = await User.findOne({ username: username })
-            if (user) {
-                user.transactions.push(newTransaction)
-                user.updateOne({ transactions: user.transactions })
-                    .then((result) => {
-                        res.status(200).send()
-                    }).catch((err) => {
-                        console.log(err);
-                    });
-            }
-        }).catch((err) => {
-            console.log(err);
-        });
-})
 
+
+// Returns a list of all transactions from a given user
 router.get("/:username/transactions", async (req, res) => {
     const username = req.params.username
 

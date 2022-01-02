@@ -18,6 +18,10 @@ var transactionSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    user: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User"
+    },
     verified: {
         type: Boolean,
         required: true
