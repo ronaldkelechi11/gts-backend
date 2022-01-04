@@ -32,6 +32,12 @@ var userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    transactions: [
+        {
+            type: mongoose.SchemaTypes.ObjectId,
+            ref: "Transaction"
+        }
+    ],
     refferals: [
         {
             type: mongoose.SchemaTypes.ObjectId,

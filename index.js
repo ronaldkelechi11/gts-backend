@@ -10,16 +10,19 @@ const dbUrl = "mongodb://127.0.0.1:27017/globalTechnologyServices"
 // Middleware
 app.use(express.json())
 app.use(express.urlencoded())
+app.use(express.static("/"))
 app.use(cors())
 
 //Getting Routes
 const signupRoute = require("./routes/Signup")
 const loginRoute = require("./routes/Login")
+const dashboardRoute = require("./routes/Dashboard")
 
 
 // Assigning Routes
 app.use("/signup", signupRoute)
 app.use("/login", loginRoute)
+app.use("/dashboard", dashboardRoute)
 
 
 app.listen(PORT,

@@ -11,19 +11,31 @@ router.post('/', (req, res) => {
     var telephone = user.telephone
     var password = user.password
 
+    function generateRefferalCode() {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let randomString = '';
+        for (let i = 0; i < 12; i++) {
+            randomString += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        return randomString;
+    }
+
 
     User.findOne({ email })
         .then((response) => {
             if (response == null) {
+                const randomGenerator = generateRefferalCode();
 
                 var user = new User({
                     username: username,
                     email: email,
                     telephone: telephone,
                     password: password,
-                    balance: 0,
+                    balance: 5,
+                    refferalCode: randomGenerator,
                     refferals: []
                 })
+                console.log(user);
 
                 user.save()
                     .then((result) => {
