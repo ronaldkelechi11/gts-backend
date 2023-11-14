@@ -3,8 +3,8 @@ const cors = require('cors');
 const { mongoose } = require('mongoose')
 const app = express()
 
-const PORT = 4000 || process.env.PORT
-const dbUrl = "mongodb://127.0.0.1:27017/globalTechnologyServices" || process.env.MONGO_URL
+const PORT = 4000
+const dbUrl = "mongodb+srv://ronaldkelechi11:<Vf95dA2EdYq68iSZ>@maincluster.q9jui5g.mongodb.net/?retryWrites=true&w=majority"
 
 
 // Middleware
