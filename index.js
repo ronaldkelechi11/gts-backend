@@ -4,7 +4,7 @@ const { mongoose } = require('mongoose')
 const app = express()
 
 const PORT = 4000
-const dbUrl = "mongodb+srv://ronaldkelechi11:<Vf95dA2EdYq68iSZ>@maincluster.q9jui5g.mongodb.net/?retryWrites=true&w=majority"
+const dbUrl = "mongodb+srv://ronaldkelechi11:ho6dIGViDOU2wisQ@maincluster.q9jui5g.mongodb.net/?retryWrites=true&w=majority"
 
 
 // Middleware
@@ -35,7 +35,7 @@ app.listen(PORT,
             .then((result) => {
                 console.log("Succesfully Connected to Mongo DB");
             }).catch((err) => {
-                console.log("Error Connecting to Mongo DB");
+                console.log("Error Connecting to Mongo DB: " + err);
             });
     }
 )
