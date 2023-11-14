@@ -9,21 +9,26 @@ router.post('/', async (req, res) => {
     var email = loggingUser.email
     var password = loggingUser.password
 
-    const user = await User.findOne({ email: email })
-    if (user) {
-        const auth = await bcrypt.compare(password, user.password)
-        if (auth) {
-            user.password = ""
-            res.status(200).send(user)
-        }
-        else {
-            // wrong password
-            res.status(401).send()
-        }
+    if (email == "admin@globaltechnologyservices.web.app") {
+        res.status(503).send()
     }
     else {
-        res.status(501).send()
-        console.log("User doesn't exist");
+        const user = await User.findOne({ email: email })
+        if (user) {
+            const auth = await bcrypt.compare(password, user.password)
+            if (auth) {
+                user.password = ""
+                res.status(200).send(user)
+            }
+            else {
+                // wrong password
+                res.status(401).send()
+            }
+        }
+        else {
+            res.status(501).send()
+            console.log("User doesn't exist");
+        }
     }
 })
 
