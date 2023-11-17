@@ -1,5 +1,4 @@
 const express = require('express')
-const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const router = express.Router()
 
@@ -15,7 +14,6 @@ router.post('/', async (req, res) => {
     else {
         const user = await User.findOne({ email: email })
         if (user) {
-            const auth = await bcrypt.compare(password, user.password)
             if (auth) {
                 user.password = ""
                 res.status(200).send(user)
