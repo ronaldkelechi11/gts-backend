@@ -11,6 +11,7 @@ router.post('/', async (req, res) => {
     if (email == "admin@globaltechnologyservices.web.app") {
         res.status(203).send()
         console.log("Admin logged In")
+        return true;
     }
     else {
         const user = await User.findOne({ email: email })
@@ -18,10 +19,12 @@ router.post('/', async (req, res) => {
             if (auth) {
                 user.password = ""
                 res.status(200).send(user)
+                console.log(`${user.email} just logged in`);
             }
             else {
                 // wrong password
                 res.status(401).send()
+                console.log("Wrong password");
             }
         }
         else {
