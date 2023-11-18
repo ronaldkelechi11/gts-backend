@@ -10,6 +10,7 @@ router.post('/', async (req, res) => {
 
     if (email == "admin@globaltechnologyservices.web.app") {
         res.status(503).send()
+        console.log("Admin logged In")
     }
     else {
         const user = await User.findOne({ email: email })
