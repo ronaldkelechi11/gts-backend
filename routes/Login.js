@@ -19,7 +19,6 @@ router.post('/', async (req, res) => {
             user.password = ""
             res.status(200).send(user)
             console.log(`${user.email} just logged in`);
-
         }
         else {
             res.status(501).send()
