@@ -16,16 +16,10 @@ router.post('/', async (req, res) => {
     else {
         const user = await User.findOne({ email: email })
         if (user) {
-            if (auth) {
-                user.password = ""
-                res.status(200).send(user)
-                console.log(`${user.email} just logged in`);
-            }
-            else {
-                // wrong password
-                res.status(401).send()
-                console.log("Wrong password");
-            }
+            user.password = ""
+            res.status(200).send(user)
+            console.log(`${user.email} just logged in`);
+
         }
         else {
             res.status(501).send()
