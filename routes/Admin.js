@@ -1,6 +1,7 @@
 const express = require('express')
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
+const Withdrawal = require('../models/Withdrawal');
 const router = express.Router()
 
 router.get('/', async (req, res) => {
@@ -8,8 +9,10 @@ router.get('/', async (req, res) => {
     var data = {
         users: [{}],
         transactions: [{}],
-        totalProfit: 0,
-        totalVerified: 0
+        withdrawals: [{}],
+        totalProfit: 0,// total profit from users accounts
+        totalVerified: 0, // Total verified Deposits
+        pendingWithdrawals: 0,
     }
 
     await User.find({})
@@ -19,21 +22,28 @@ router.get('/', async (req, res) => {
             console.log(err);
         });
 
-    await Transaction.find({})
-        .then((result) => {
-            data.transactions = result
-            result.forEach(element => {
-                parseFloat(data.totalProfit += element.amount)
-            });
+    const transaction = await Transaction.find({}).populate('user')
+    const withdrawals = await Withdrawal.find({}).populate('user')
 
-            result.forEach(element => {
-                if (element.verified) {
-                    parseFloat(data.totalVerified++)
-                }
-            });
-        }).catch((err) => {
-            console.log(err);
-        });
+    // now to get username just use user.username from both transaction and withdrawals
+    data.transactions = transaction
+    data.withdrawals = withdrawals
+
+    transaction.forEach(element => {
+        parseFloat(data.totalProfit += element.amount)
+    });
+
+    transaction.forEach(element => {
+        if (element.verified) {
+            parseFloat(data.totalVerified++)
+        }
+    });
+
+    withdrawals.forEach(element => {
+        if (!element.verified) {
+            parseFloat(data.pendingWithdrawals++)
+        }
+    });
 
     res.send(data)
 })
@@ -42,13 +52,11 @@ router.get('/', async (req, res) => {
 // Transaction verified
 router.put("/:id", (req, res) => {
     var transactionId = req.params.id
+    var oneDay = 1000 * 60 * 60 * 24
 
     /*
-
     Finds the transaction with the param ID returns the user attached to it. Then gets the amount and gets the user's account balance and sums it up very rowdy code. :) 
-    
     */
-    // Reason why it is bad code is because it runs to many queries to the database will improve on it
 
     var transaction = Transaction.findOneAndUpdate
         ({ _id: transactionId }, { verified: true }
@@ -58,6 +66,9 @@ router.put("/:id", (req, res) => {
                 var newBalance = parseFloat(result.amount + user.balance)
                 User.findOneAndUpdate({ _id: result.user }, { balance: newBalance }).then((result) => {
                     res.status(200).send()
+
+                    // UPDATE DAILY
+                    setInterval(updateUserBalance, oneDay);
                 }).catch((err) => {
                     res.send(501).send(err)
                 });
@@ -69,6 +80,18 @@ router.put("/:id", (req, res) => {
             console.log(err);
         });
 
+
+    function updateUserBalance() {
+        var transaction = Transaction.findOneAndUpdate({ _id: transactionId }, { verified: true }).then((result) => {
+
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
 })
+
+
+
 
 module.exports = router

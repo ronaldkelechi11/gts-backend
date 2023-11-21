@@ -31,6 +31,7 @@ router.post('/', async (req, res) => {
                     telephone: telephone,
                     password: password,
                     balance: 5,
+                    profit: 0,
                     refferalCode: randomGenerator,
                     refferals: []
                 })

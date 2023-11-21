@@ -4,10 +4,10 @@ const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const router = express.Router()
 const path = require('path');
+const Withdrawal = require('../models/Withdrawal');
 
 const storage = multer.diskStorage({
     filename: (req, file, cb) => {
-        //This is the name the file is changed into
         cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname));
     },
     destination: (req, file, cb) => {
@@ -75,6 +75,38 @@ router.post("/:username/deposit",
             });
     })
 
+
+
+// Making a withdrawal
+router.post('/:username/withdrawal', async (req, res) => {
+    var username = req.params.username
+    var walletAddress = req.body.walletAddress
+    var amount = req.body.amount
+    var coin = req.body.coin
+    var verified = false
+
+    var user = await User.findOne({ username: username })
+    try {
+        var newWithdrawal = {
+            amount: amount,
+            walletAddress: walletAddress,
+            coin: coin,
+            user: '',
+            verified: verified
+        }
+        newWithdrawal.user = user._id
+
+        var withdrawal = new Withdrawal(newWithdrawal)
+        withdrawal.save().then((result) => {
+            res.status(200).send()
+        }).catch((err) => {
+            res.status(404).send()
+        });
+    } catch (error) {
+        console.log(error);
+    }
+
+})
 
 
 // Returns a list of all transactions from a given user

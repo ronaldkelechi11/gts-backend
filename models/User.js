@@ -28,6 +28,12 @@ var userSchema = new mongoose.Schema({
         maxLength: 7,
         minLength: 1
     },
+    profit: {
+        type: Number,
+        required: true,
+        maxLength: 7,
+        minLength: 1
+    },
     refferalCode: {
         type: String,
         required: true
