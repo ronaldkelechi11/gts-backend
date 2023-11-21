@@ -50,6 +50,7 @@ router.post("/:username/deposit",
             user: 0,
             verified: false
         })
+        console.log(transaction);
 
         const user = await User.findOne({ username: username })
         if (user) {
