@@ -17,6 +17,9 @@ router.get('/', async (req, res) => {
 
     await User.find({})
         .then((result) => {
+            result.forEach(user => {
+                user.password = ''
+            })
             data.users = result
         }).catch((err) => {
             console.log(err);
@@ -45,12 +48,36 @@ router.get('/', async (req, res) => {
         }
     });
 
-    res.send(data)
+    res.status(200).send(data)
+})
+
+
+//Withdrawal Verified
+router.post('/withdrawal/verified/:id', (req, res) => {
+    var withdrawalId = req.params.id
+
+    var withdrawal = Withdrawal.findOneAndUpdate(
+        { _id: withdrawalId }, { verified: true })
+        .then(async (result) => {
+            console.log(result);
+            const user = await User.findOne({ _id: result.user })
+            if (user) {
+                var newBalance = parseFloat(user.balance - result.amount)
+                User.findOneAndUpdate({ _id: result.user }, { balance: newBalance })
+                    .then((result) => {
+                        res.status(200).send()
+                    }).catch((err) => {
+                        res.status(404).send()
+                    });
+            }
+        }).catch((err) => {
+
+        });
 })
 
 
 // Transaction verified
-router.put("/:id", (req, res) => {
+router.put("transaction/verified/:id", (req, res) => {
     var transactionId = req.params.id
     var oneDay = 1000 * 60 * 60 * 24
 
@@ -82,13 +109,9 @@ router.put("/:id", (req, res) => {
 
 
     function updateUserBalance() {
-        var transaction = Transaction.findOneAndUpdate({ _id: transactionId }, { verified: true }).then((result) => {
-
-        }).catch((err) => {
-            console.log(err);
-        });
+        var transaction = Transaction.findOneAndUpdate({ _id: transactionId }, { verified: true })
+        console.log(transaction);
     }
-
 })
 
 
