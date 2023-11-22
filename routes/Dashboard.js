@@ -80,6 +80,7 @@ router.post("/:username/deposit",
 // Making a withdrawal
 router.post('/:username/withdrawal', async (req, res) => {
     var username = req.params.username
+
     var walletAddress = req.body.walletAddress
     var amount = req.body.amount
     var coin = req.body.coin

@@ -4,6 +4,8 @@ const Transaction = require('../models/Transaction');
 const Withdrawal = require('../models/Withdrawal');
 const router = express.Router()
 
+
+// Get all important values
 router.get('/', async (req, res) => {
 
     var data = {
@@ -33,7 +35,9 @@ router.get('/', async (req, res) => {
     data.withdrawals = withdrawals
 
     transaction.forEach(element => {
-        parseFloat(data.totalProfit += element.amount)
+        if (element.verified) {
+            parseFloat(data.totalProfit += element.amount)
+        }
     });
 
     transaction.forEach(element => {
@@ -52,14 +56,32 @@ router.get('/', async (req, res) => {
 })
 
 
-//Withdrawal Verified
-router.post('/withdrawal/verified/:id', (req, res) => {
+
+// edit a user balance or password
+router.put('/edit/:id', async (req, res) => {
+    var userId = req.params.id
+    var newBalance = req.body.balance
+    var newProfit = req.body.profit
+
+    const user = await User.findOneAndUpdate(
+        { _id: userId },
+        { balance: newBalance, profit: newProfit }
+    ).then((result) => {
+        res.status(200).send()
+    }).catch((err) => {
+        console.log(err);
+    });
+})
+
+
+
+//Withdrawal Verification
+router.put('/withdrawal/verified/:id', (req, res) => {
     var withdrawalId = req.params.id
 
     var withdrawal = Withdrawal.findOneAndUpdate(
         { _id: withdrawalId }, { verified: true })
         .then(async (result) => {
-            console.log(result);
             const user = await User.findOne({ _id: result.user })
             if (user) {
                 var newBalance = parseFloat(user.balance - result.amount)
@@ -67,23 +89,20 @@ router.post('/withdrawal/verified/:id', (req, res) => {
                     .then((result) => {
                         res.status(200).send()
                     }).catch((err) => {
-                        res.status(404).send()
+                        res.status(403).send()
                     });
             }
         }).catch((err) => {
-
+            console.log(err);
+            res.send(503)
         });
 })
 
 
-// Transaction verified
-router.put("transaction/verified/:id", (req, res) => {
+// Transaction verified (update)
+router.put("/transaction/verified/:id", (req, res) => {
     var transactionId = req.params.id
     var oneDay = 1000 * 60 * 60 * 24
-
-    /*
-    Finds the transaction with the param ID returns the user attached to it. Then gets the amount and gets the user's account balance and sums it up very rowdy code. :) 
-    */
 
     var transaction = Transaction.findOneAndUpdate
         ({ _id: transactionId }, { verified: true }
@@ -108,6 +127,7 @@ router.put("transaction/verified/:id", (req, res) => {
         });
 
 
+    // Update profit daily code
     function updateUserBalance() {
         var transaction = Transaction.findOneAndUpdate({ _id: transactionId }, { verified: true })
         console.log(transaction);
