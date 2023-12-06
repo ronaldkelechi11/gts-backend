@@ -2,6 +2,7 @@ const express = require('express')
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const Withdrawal = require('../models/Withdrawal');
+const Message = require('../models/Message');
 const router = express.Router()
 
 
@@ -54,6 +55,7 @@ router.get('/', async (req, res) => {
 
     res.status(200).send(data)
 })
+
 
 
 
@@ -134,7 +136,42 @@ router.put("/transaction/verified/:id", (req, res) => {
     }
 })
 
+// Get all messages linked to a particular user and admin
+router.get('/messages/:username', async (req, res) => {
+    var username = req.params.username
+    var messages = []
 
+    var findmessages = Message.find()
+        .then((result) => {
+            result.forEach(eachMessage => {
+                eachMessage.receiver != username
+                result.pop(eachMessage)
+            })
+            console.log(result);
+            res.status(200).send(result)
+        }).catch((err) => {
+            console.log(err);
+        });
+})
 
+// Post new message to that user
+router.post('/messages/:username', async (req, res) => {
+    var sender = req.body.sender
+    var receiver = req.body.receiver
+    var text = req.body.text
+
+    var newMessage = new Message({
+        text: text,
+        sender: sender,
+        receiver: receiver
+    })
+
+    newMessage.save()
+        .then((result) => {
+            res.status(200).send()
+        }).catch((err) => {
+            console.log(err);
+        });
+})
 
 module.exports = router

@@ -5,6 +5,7 @@ const Transaction = require('../models/Transaction');
 const router = express.Router()
 const path = require('path');
 const Withdrawal = require('../models/Withdrawal');
+const Message = require('../models/Message');
 
 const storage = multer.diskStorage({
     filename: (req, file, cb) => {
@@ -50,7 +51,6 @@ router.post("/:username/deposit",
             user: 0,
             verified: false
         })
-        console.log(transaction);
 
         const user = await User.findOne({ username: username })
         if (user) {
@@ -131,4 +131,36 @@ router.get("/:username/transactions", async (req, res) => {
 
 })
 
+//send a message
+router.post('/:username/livesupport', async (req, res) => {
+    var sender = req.body.sender
+    var receiver = req.body.receiver
+    var text = req.body.text
+
+    var newMessage = new Message({
+        sender: sender,
+        receiver: receiver,
+        text: text
+    })
+
+    var user = await User.findOne({ username: sender })
+    newMessage.save()
+        .then(async (result) => {
+            user.messages.push(result._id)
+            user.updateOne({ messages: user.messages })
+                .then((result) => {
+                    res.status(200).send()
+                }).catch((err) => {
+                    console.log(err);
+                });
+        }).catch((err) => {
+            console.log(err);
+        });
+})
+
+
+// get all messages
+router.get('/:username/livesupport', async (req, res) => {
+
+})
 module.exports = router

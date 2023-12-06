@@ -49,6 +49,12 @@ var userSchema = new mongoose.Schema({
             type: mongoose.SchemaTypes.ObjectId,
             ref: "User"
         }
+    ],
+    messages: [
+        {
+            type: mongoose.SchemaTypes.ObjectId,
+            ref: "Message"
+        }
     ]
 })
 
