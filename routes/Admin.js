@@ -138,20 +138,15 @@ router.put("/transaction/verified/:id", (req, res) => {
 
 // Get all messages linked to a particular user and admin
 router.get('/messages/:username', async (req, res) => {
-    var username = req.params.username
-    var messages = []
 
-    var findmessages = Message.find()
-        .then((result) => {
-            result.forEach(eachMessage => {
-                eachMessage.receiver != username
-                result.pop(eachMessage)
-            })
-            console.log(result);
-            res.status(200).send(result)
-        }).catch((err) => {
-            console.log(err);
-        });
+    var username = req.params.username
+
+    var user = User.findOne({ username: username })
+    user.populate('messages').then((result) => {
+        res.status(200).send(result.messages)
+    }).catch((err) => {
+        console.log(err);
+    });
 })
 
 // Post new message to that user
@@ -165,10 +160,17 @@ router.post('/messages/:username', async (req, res) => {
         sender: sender,
         receiver: receiver
     })
-
+    var user = await User.findOne({ username: receiver })
     newMessage.save()
-        .then((result) => {
-            res.status(200).send()
+        .then(async (result) => {
+            user.messages.push(result._id)
+
+            user.updateOne({ messages: user.messages })
+                .then((result) => {
+                    res.status(200).send()
+                }).catch((err) => {
+                    console.log(err);
+                });
         }).catch((err) => {
             console.log(err);
         });

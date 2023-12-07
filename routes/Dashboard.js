@@ -162,5 +162,14 @@ router.post('/:username/livesupport', async (req, res) => {
 // get all messages
 router.get('/:username/livesupport', async (req, res) => {
 
+    const username = req.params.username
+
+    const user = User.findOne({ username: username })
+    user.populate('messages')
+        .then((result) => {
+            res.status(200).send(result.messages)
+        }).catch((err) => {
+            console.log(err);
+        });
 })
 module.exports = router
